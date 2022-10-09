@@ -23,6 +23,10 @@ data_processing.BankChurners_without_skew:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/BankChurners_without_skew.csv
 
-data_processing.encoded_data:
+encoded_data:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/encoded_data.csv
+
+data_science.active_modelling_pipeline.model:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/model_lg.pickle

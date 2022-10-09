@@ -44,6 +44,6 @@ def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         pipe=pipeline_instance,
         inputs="BankChurners",
-        outputs="BankChurners_without_skew",
+        outputs="encoded_data",
         namespace="data_processing",
     )
