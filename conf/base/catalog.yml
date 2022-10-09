@@ -5,4 +5,24 @@
 
 BankChurners:
   type: pandas.CSVDataSet
-    filepath: data/raw/BankChurners.csv
+  filepath: data/01_raw/BankChurners.csv
+
+data_processing.BankChurners_removed_columns:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/BankChurners_removed_columns.csv
+
+data_processing.BankChurners_reduced_columns:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/BankChurners_reduced_columns.csv
+
+data_processing.BankChurners_without_outliers:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/BankChurners_without_outliers.csv
+
+data_processing.BankChurners_without_skew:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/BankChurners_without_skew.csv
+
+data_processing.encoded_data:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/encoded_data.csv
