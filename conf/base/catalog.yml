@@ -6,27 +6,61 @@
 BankChurners:
   type: pandas.CSVDataSet
   filepath: data/01_raw/BankChurners.csv
+  layer: raw
 
 data_processing.BankChurners_removed_columns:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/BankChurners_removed_columns.csv
+  layer: intermediate
 
 data_processing.BankChurners_reduced_columns:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/BankChurners_reduced_columns.csv
+  layer: intermediate
 
 data_processing.BankChurners_without_outliers:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/BankChurners_without_outliers.csv
+  layer: intermediate
 
 data_processing.BankChurners_without_skew:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/BankChurners_without_skew.csv
+  layer: intermediate
+
 
 encoded_data:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/encoded_data.csv
+  layer: intermediate
 
-data_science.active_modelling_pipeline.model:
+data_science.active_modelling_pipeline.model_lg:
   type: pickle.PickleDataSet
   filepath: data/06_models/model_lg.pickle
+  layer: models
+
+data_science.candidate_modelling_pipeline_svm.model_svm:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/model_svm.pickle
+  layer: models
+
+data_science.candidate_modelling_pipeline_svm.model_rf:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/model_rf.pickle
+  layer: models
+
+
+classification_report_lr:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/08_reporting/classification_report_lr.png
+  layer: reporting
+
+classification_report_svm:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/08_reporting/classification_report_svm.png
+  layer: reporting
+
+classification_report_rf:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/08_reporting/classification_report_rf.png
+  layer: reporting
