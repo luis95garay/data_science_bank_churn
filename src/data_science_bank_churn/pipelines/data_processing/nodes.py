@@ -10,7 +10,7 @@ from typing import List, Dict
 from scipy.stats.mstats import normaltest
 from scipy.stats import boxcox
 from sklearn.preprocessing import LabelBinarizer, LabelEncoder, OrdinalEncoder, OneHotEncoder
-
+from sklearn.feature_selection import f_classif
 
 def remove_unnecessary_columns(df: pd.DataFrame, delete_columns: Dict) -> pd.DataFrame:
     df.drop(columns=delete_columns['selected_columns'], inplace=True)
@@ -154,3 +154,67 @@ def encode_categorical_columns(df: pd.DataFrame, target_variable: str) -> pd.Dat
     df = pd.get_dummies(df, columns=categorical_variables, drop_first=True)
 
     return df
+
+
+def _get_anova_fvalue(x: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+    # Entre mayor sea el f1, quiere decir que la media entre las clases 0 y 1 de attrition, tiene una mayor variabilidad,
+    # lo que quiere decir que esa variable si importa en en an?lisis
+    f_scores = f_classif(x, y)[0]  # el [1] son los p-values.
+    df_fscores = pd.DataFrame({'features': x.columns, 'score': f_scores})
+    df_fscores = df_fscores.sort_values('score', ascending=False)
+
+    return df_fscores
+
+
+def _get_correlations(data: pd.DataFrame, threshold: float) -> pd.DataFrame:
+    xcorr = data.corr().abs()
+    xcorr = xcorr[xcorr > threshold].fillna(0)
+    column1 = []
+    column2 = []
+    for idx in list(xcorr.index):
+        for col in list(xcorr.columns):
+            # la matriz es diagonal
+            if idx == col:
+                break
+            if (xcorr.loc[idx, col] != 0):
+                column1 = column1 + [idx]
+                column2 = column2 + [col]
+    df_fcorr = pd.DataFrame({'column1': column1, 'column2': column2})
+    return df_fcorr
+
+
+def _remove_columns_by_correlation(x: pd.DataFrame, df_most_correlated_cols: pd.DataFrame,
+                                   df_anova_fscores: pd.DataFrame) -> pd.DataFrame:
+    for idx in df_most_correlated_cols.index:
+        column1 = df_most_correlated_cols.loc[idx, 'column1']
+        column2 = df_most_correlated_cols.loc[idx, 'column2']
+        score_column1 = df_anova_fscores.loc[df_anova_fscores['features'] == column1, 'score'].ravel()
+        score_column2 = df_anova_fscores.loc[df_anova_fscores['features'] == column2, 'score'].ravel()
+        if score_column1 > score_column2:
+            df_most_correlated_cols.loc[idx, 'drop'] = column2
+        else:
+            df_most_correlated_cols.loc[idx, 'drop'] = column1
+    drop_features = list(df_most_correlated_cols['drop'].unique())
+    print("removed by correlation: ", drop_features)
+    df_removed_columns = x.drop(columns=drop_features, axis=1)
+    return df_removed_columns
+
+
+def _remove_columns_by_fvalue(df_clean1: pd.DataFrame, df_anova_fscores: pd.DataFrame,
+                              threshold: float) -> pd.DataFrame:
+    df_anova_fscores = df_anova_fscores[df_anova_fscores['score'] > threshold]
+    df_removed_columns = df_clean1[df_anova_fscores['features']]
+    return df_removed_columns
+
+
+def feature_selection_correlation_anova(df_encoded_data: pd.DataFrame, target: str, threshold: Dict) -> pd.DataFrame:
+    x = df_encoded_data.drop(columns=[target])
+    y = df_encoded_data[target]
+
+    df_anova_fscores = _get_anova_fvalue(x, y)
+    df_most_correlated_cols = _get_correlations(x, threshold['corr_threshold'])
+    df_clean1 = _remove_columns_by_correlation(x, df_most_correlated_cols, df_anova_fscores)
+    df_model_input = _remove_columns_by_fvalue(df_clean1, df_anova_fscores, threshold['fvalue_threshold'])
+    df_model_input[target] = y
+
+    return df_model_input

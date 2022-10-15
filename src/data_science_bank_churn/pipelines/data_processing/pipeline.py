@@ -4,7 +4,9 @@ generated using Kedro 0.17.7
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import remove_unnecessary_columns, reduce_categorical_column_options, handle_outliers, treat_skewed_columns, encode_categorical_columns
+from .nodes import remove_unnecessary_columns, reduce_categorical_column_options, handle_outliers, treat_skewed_columns, \
+    encode_categorical_columns, feature_selection_correlation_anova
+
 
 def create_pipeline(**kwargs) -> Pipeline:
     pipeline_instance = pipeline(
@@ -39,11 +41,17 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="encoded_data",
                 name="encode_categorical_columns",
             ),
+            node(
+                func=feature_selection_correlation_anova,
+                inputs=["encoded_data", 'params:target', 'params:feature_selection'],
+                outputs="model_input",
+                name="feature_selection",
+            ),
         ]
     )
     return pipeline(
         pipe=pipeline_instance,
         inputs="BankChurners",
-        outputs="encoded_data",
+        outputs="model_input",
         namespace="data_processing",
     )

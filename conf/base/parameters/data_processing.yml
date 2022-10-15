@@ -35,3 +35,7 @@ outliers_columns:
 skewed_columns:
   method: log
   exclude_columns: []
+
+feature_selection:
+  corr_threshold: 0.9
+  fvalue_threshold: 1
