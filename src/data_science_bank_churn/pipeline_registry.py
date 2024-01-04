@@ -1,7 +1,7 @@
 """Project pipelines."""
 from typing import Dict
 
-from kedro.pipeline import Pipeline, pipeline
+from kedro.pipeline import Pipeline
 
 from data_science_bank_churn.pipelines import data_processing
 from data_science_bank_churn.pipelines import data_science

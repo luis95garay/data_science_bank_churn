@@ -2,30 +2,37 @@
 This is a boilerplate pipeline 'data_science'
 generated using Kedro 0.17.7
 """
+from typing import Dict, Tuple, Any
 
-import logging
-import numpy as np
 import pandas as pd
-from typing import List, Dict, Tuple, Any
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler, PolynomialFeatures
-from sklearn.model_selection import KFold, cross_val_predict, StratifiedKFold, StratifiedShuffleSplit
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, make_scorer
-from sklearn.metrics import f1_score, roc_auc_score
+from sklearn.metrics import (
+    classification_report, accuracy_score, precision_score,
+    recall_score, make_scorer
+)
+from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def split_data(df: pd.DataFrame, target_variable: str, model_options_lg: Dict) -> Tuple:
+
+def split_data(
+    df: pd.DataFrame,
+    target_variable: str,
+    model_options_lg: Dict
+) -> Tuple:
     y = df[target_variable]
     x = df.drop(columns=[target_variable])
 
-    strat_shuf_split = StratifiedShuffleSplit(n_splits=1,
-                                              test_size=model_options_lg['test_size'],
-                                              random_state=model_options_lg['random_state'])
+    strat_shuf_split = StratifiedShuffleSplit(
+        n_splits=1, test_size=model_options_lg['test_size'],
+        random_state=model_options_lg['random_state']
+    )
 
     train_idx, test_idx = next(strat_shuf_split.split(x, y))
     x_train = df.loc[train_idx, x.columns]
@@ -36,7 +43,11 @@ def split_data(df: pd.DataFrame, target_variable: str, model_options_lg: Dict) -
     return x_train, y_train, x_test, y_test
 
 
-def train_model(x_train: pd.DataFrame, y_train: pd.Series, model_options_lg: Dict) -> Any:
+def train_model(
+    x_train: pd.DataFrame,
+    y_train: pd.Series,
+    model_options_lg: Dict
+) -> Any:
     skf = StratifiedKFold(shuffle=True,
                           random_state=model_options_lg['random_state'],
                           n_splits=model_options_lg['n_splits'])
@@ -93,13 +104,19 @@ def train_model(x_train: pd.DataFrame, y_train: pd.Series, model_options_lg: Dic
             'RF_classifier__warm_start': [True]
         }
 
-    grid = GridSearchCV(estimator, params, scoring=scoring, refit='f1', cv=skf, n_jobs=-1)
+    grid = GridSearchCV(
+        estimator, params, scoring=scoring, refit='f1', cv=skf, n_jobs=-1
+    )
     grid.fit(x_train, y_train)
 
     return grid
 
 
-def evaluate_model(model: Any, x_test: pd.DataFrame, y_test: pd.Series):
+def evaluate_model(
+    model: Any,
+    x_test: pd.DataFrame,
+    y_test: pd.Series
+):
     score, params = model.best_score_, model.best_params_
     print("Best score: ", score)
     print("Best params: ", params)

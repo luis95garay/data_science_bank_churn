@@ -7,12 +7,13 @@ from kedro.pipeline import Pipeline, node, pipeline
 
 from .nodes import split_data, train_model, evaluate_model
 
+
 def create_pipeline(**kwargs) -> Pipeline:
     pipeline_lr = pipeline(
         [
             node(
                 func=split_data,
-                inputs=["model_input","params:target","params:model_options_lg"],
+                inputs=["model_input", "params:target", "params:model_options_lg"],
                 outputs=["x_train", "y_train", "x_test", "y_test"],
                 name="split_data_node",
             ),
@@ -24,7 +25,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=evaluate_model,
-                inputs=["model_lg","x_test","y_test"],
+                inputs=["model_lg", "x_test", "y_test"],
                 outputs="classification_report_lr",
                 name="evaluate_model_node",
             ),
@@ -89,6 +90,9 @@ def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         pipe=pipeline_lr + pipeline_svm + pipeline_rf,
         inputs="model_input",
-        outputs=["classification_report_lr","classification_report_svm","classification_report_rf"],
+        outputs=[
+            "classification_report_lr", "classification_report_svm",
+            "classification_report_rf"
+        ],
         namespace="data_science",
     )

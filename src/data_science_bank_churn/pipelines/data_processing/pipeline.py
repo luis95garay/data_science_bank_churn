@@ -4,8 +4,11 @@ generated using Kedro 0.17.7
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import remove_unnecessary_columns, reduce_categorical_column_options, handle_outliers, treat_skewed_columns, \
-    encode_categorical_columns, feature_selection_correlation_anova
+from .nodes import (
+    remove_unnecessary_columns, reduce_categorical_column_options,
+    handle_outliers, treat_skewed_columns, encode_categorical_columns,
+    feature_selection_correlation_anova
+)
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -19,13 +22,19 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=reduce_categorical_column_options,
-                inputs=["BankChurners_removed_columns",'params:reduce_options_columns'],
+                inputs=[
+                    "BankChurners_removed_columns",
+                    'params:reduce_options_columns'
+                ],
                 outputs="BankChurners_reduced_columns",
                 name="reduce_columns_options",
             ),
             node(
                 func=handle_outliers,
-                inputs=["BankChurners_reduced_columns", 'params:outliers_columns'],
+                inputs=[
+                    "BankChurners_reduced_columns",
+                    'params:outliers_columns'
+                ],
                 outputs="BankChurners_without_outliers",
                 name="handle_outliers",
             ),
@@ -37,7 +46,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=encode_categorical_columns,
-                inputs=["BankChurners_without_skew",'params:target_variable'],
+                inputs=["BankChurners_without_skew", 'params:target_variable'],
                 outputs="encoded_data",
                 name="encode_categorical_columns",
             ),
