@@ -1,0 +1,190 @@
+<html>
+<body>
+    <div class="login">
+       <h1>Bank Curn prediction</h1>
+   
+       <form action="{{ url_for('predict')}}" method="post">
+        <h1>
+            <legend>Bank Curn prediction</legend>
+        </h1>
+        <div class="mb-3">
+            <label class="form-label">Customer_Age</label>
+            <input class="form-control" type="number" name="Customer_Age"
+                placeholder="Enter Customer_Age" min='0' max='200' value="54"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Gender</label>
+            <select class="form-control" name="Gender" placeholder="Enter Gender" required>
+                <option class="placeholder" selected disabled value="">Select Gender</option>
+                <option value="male" selected>
+                    M
+                </option>
+                <option value="female">
+                    F
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Dependent_count</label>
+            <input class="form-control" type="number" name="Dependent_count"
+                placeholder="Enter Dependent_count" min='0' max='200' value="3"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Education_Level</label>
+            <select class="form-control" name="Education_Level"
+                placeholder="Enter Education_Level" required>
+                <option class="placeholder" selected disabled value="">Select Education_Level</option>
+                <option value="Unknown">
+                    Unknown
+                </option>
+                <option value="Uneducatede">
+                    Uneducated
+                </option>
+                <option value="High School">
+                    High School
+                </option>
+                <option value="College">
+                    College
+                </option>
+                <option value="Graduate" selected>
+                    Graduate
+                </option>
+                <option value="Post-Graduate">  
+                    Post-Graduate
+                </option>
+                <option value="Doctorate">
+                    Doctorate
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Marital_Status</label>
+            <select class="form-control" name="lunch" placeholder="Enter Marital_Status" required>
+                <option class="placeholder" selected disabled value="">Select Marital_Status</option>
+                <option value="Married" selected>
+                    Married
+                </option>
+                <option value="Single">
+                    Single
+                </option>
+                <option value="Unknown">
+                    Unknown
+                </option>
+                <option value="Divorced">
+                    Divorced
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Income_Category</label>
+            <select class="form-control" name="test_preparation_course" placeholder="Enter Income_Category"
+                required>
+                <option class="placeholder" selected disabled value="">Write Income_Category</option>
+                <option value="Unknown">
+                    Unknown
+                </option>
+                <option value="Less than $40K">
+                    Less than $40K
+                </option>
+                <option value="$40K - $60K">
+                    $40K - $60K
+                </option>
+                <option value="$60K - $80K" selected>
+                    $60K - $80K
+                </option>
+                <option value="$80K - $120K">
+                    $80K - $120K
+                </option>
+                <option value="$120K +">
+                    $120K +
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Card_Category</label>
+            <select class="form-control" name="Card_Category" placeholder="Enter Card_Category"
+                required>
+                <option class="placeholder" selected disabled value="">Write Card_Category</option>
+                <option value="Blue">
+                    Blue
+                </option>
+                <option value="Gold">
+                    Gold
+                </option>
+                <option value="Silver" selected>
+                    Silver
+                </option>
+                <option value="Platinum">
+                    Platinum
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Months_on_book</label>
+            <input class="form-control" type="number" name="Months_on_book"
+                placeholder="Enter Months_on_book" min='0' max='200' value="39"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total_Relationship_Count</label>
+            <input class="form-control" type="number" name="Total_Relationship_Count"
+                placeholder="Enter Total_Relationship_Count" min='0' max='200' value="5"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Months_Inactive_12_mon</label>
+            <input class="form-control" type="number" name="Months_Inactive_12_mon"
+                placeholder="Enter Months_Inactive_12_mon" min='0' max='200' value="1"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Contacts_Count_12_mon</label>
+            <input class="form-control" type="number" name="Contacts_Count_12_mon"
+                placeholder="Enter Contacts_Count_12_mon" min='0' max='200' value="3"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Credit_Limit</label>
+            <input class="form-control" type="number" name="Credit_Limit"
+                placeholder="Enter Credit_Limit" min='0' max='100000' value="12691"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total_Revolving_Bal</label>
+            <input class="form-control" type="number" name="Total_Revolving_Bal"
+                placeholder="Enter Total_Revolving_Bal" min='0' max='1000' value="777"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Avg_Open_To_Buy</label>
+            <input class="form-control" type="number" name="Avg_Open_To_Buy"
+                placeholder="Enter Avg_Open_To_Buy" min='0' max='20000' value="11914"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total_Amt_Chng_Q4_Q1</label>
+            <input class="form-control" type="float" name="Total_Amt_Chng_Q4_Q1"
+                placeholder="Enter Total_Amt_Chng_Q4_Q1" min='0' max='200' value="1.335"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total_Trans_Amt</label>
+            <input class="form-control" type="number" name="Total_Trans_Amt"
+                placeholder="Enter Total_Trans_Amt" min='0' max='2000' value="1144"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total_Trans_Ct</label>
+            <input class="form-control" type="number" name="Total_Trans_Ct"
+                placeholder="Enter Total_Trans_Ct" min='0' max='200' value="42"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total_Ct_Chng_Q4_Q1</label>
+            <input class="form-control" type="float" name="Total_Ct_Chng_Q4_Q1"
+                placeholder="Enter Total_Ct_Chng_Q4_Q1" min='0' max='200' value="1.625"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Avg_Utilization_Ratio</label>
+            <input class="form-control" type="float" name="Avg_Utilization_Ratio"
+                placeholder="Enter Avg_Utilization_Ratio" min='0' max='200' value="0.061"/>
+        </div>
+        <div class="mb-3">
+            <input class="btn btn-primary" type="submit" value="Churn prediction" required />
+        </div>
+    </form>
+    <h2>
+       THE  prediction is {{results}}
+    </h2>
+   <body>
+</html>
