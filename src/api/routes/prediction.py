@@ -1,8 +1,8 @@
 from pathlib import Path
 from fastapi import Request
 from fastapi.routing import APIRouter
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+# from fastapi.responses import HTMLResponse
+# from fastapi.templating import Jinja2Templates
 
 from src.api.pipelines.prediction_pipeline import PredictPipeline, CustomData
 from src.api.schemas import EmployeeData
@@ -10,13 +10,15 @@ from src.api.schemas import EmployeeData
 
 router = APIRouter(tags=['prediction'])
 
-templates_folder = Path(__file__).parent.parent.parent / "templates"
-templates = Jinja2Templates(directory=str(templates_folder))
+# templates_folder = Path(__file__).parent.parent.parent / "templates"
+# templates = Jinja2Templates(directory=str(templates_folder))
 
 
-@router.get("/", response_class=HTMLResponse)
+# @router.get("/", response_class=HTMLResponse)
+@router.get("/")
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # return templates.TemplateResponse("index.html", {"request": request})
+    return {'result': 'exito'}
 
 
 @router.post("/predict")

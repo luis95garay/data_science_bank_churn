@@ -1,5 +1,6 @@
 fastapi==0.66.1
-uvicorn
+# jinja2==3.0.3
+uvicorn==0.13.4
 # flake8==3.9.2
 # kedro==0.17.7
 # kedro-telemetry==0.1.4
