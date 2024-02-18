@@ -45,11 +45,17 @@ kedro viz --autoreload
 
 ## 1. Validate docker images
 
+docker build -t bankchurn .
+
+docker run -it -p 8000 bankchurn
+
 ## 2. Create IAM user
 
 ## 3. Create ECR repository
 
-## 4. Creaet EC2 instance ubuntu
+## 4. Creaet EC2 instance
+
+Can be ubuntu
 
 ## 5. Setup EC2 instance
 
@@ -71,6 +77,30 @@ newgrp docker
 
 ## 6. Create a runner in github
 
+### Download
+
+#### Create a folder
+
+```
+mkdir actions-runner && cd actions-runner# Download the latest runner package
+curl -o actions-runner-linux-x64-2.313.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.313.0/actions-runner-linux-x64-2.313.0.tar.gz
+echo "56910d6628b41f99d9a1c5fe9df54981ad5d8c9e42fc14899dcc177e222e71c4 actions-runner-linux-x64-2.313.0.tar.gz" | shasum -a 256 -c
+tar xzf ./actions-runner-linux-x64-2.313.0.tar.gz
+```
+
+### Configure
+
+#### Create the runner and start the configuration experience
+
+```
+./config.sh --url https://github.com/luis95garay/data_science_bank_churn --token A2HZ3RAIEHR54EP7JI4PWY3F2JIFM
+./run.sh
+```
+
+### Using your self-hosted runner
+
+The name must be self-hosted
+
 ## 7. Create github credentials
 
 AWS_ACCESS_KEY_ID=
@@ -83,4 +113,18 @@ AWS_ECR_LOGIN_URI = demo>> id.dkr.ecr.us-east-1.amazonaws.com
 
 ECR_REPOSITORY_NAME = bankchurn
 
-## 7. Push the githubworkflow
+## 7. Add and push the github workflow
+
+## 8. Update security group
+
+Add custom TCP in port 8000
+
+## 9. Display in EC2
+
+Remember to replace https to http
+
+## 10. Clean resources
+
+- Delete app runner
+- Terminate EC2
+- Delete ECR repository
