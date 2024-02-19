@@ -47,7 +47,7 @@ kedro viz --autoreload
 
 docker build -t bankchurn .
 
-docker run -it -p 8000 bankchurn
+docker run -it -p 8000:8000 bankchurn
 
 ## 2. Create IAM user
 

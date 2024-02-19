@@ -21,7 +21,10 @@ logs/**
 !.gitkeep
 
 # also keep the example dataset
-!data/01_raw/iris.csv
+!data/01_raw/BankChurners.csv
+
+# also keep the model
+!data/06_models/model_notebook.pkl
 
 
 ##########################
