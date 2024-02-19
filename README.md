@@ -45,9 +45,11 @@ kedro viz --autoreload
 
 ## 1. Validate docker images
 
+```
 docker build -t bankchurn .
 
 docker run -it -p 8000:8000 bankchurn
+```
 
 ## 2. Create IAM user
 
@@ -59,6 +61,7 @@ Can be ubuntu
 
 ## 5. Setup EC2 instance
 
+```
 #optinal
 
 sudo apt-get update -y
@@ -74,6 +77,11 @@ sudo sh get-docker.sh
 sudo usermod -aG docker ubuntu
 
 newgrp docker
+
+#In case of error
+sudo chmod 666 /var/run/docker.sock
+
+```
 
 ## 6. Create a runner in github
 
