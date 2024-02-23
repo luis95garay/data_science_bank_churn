@@ -4,7 +4,7 @@ generated using Kedro 0.17.7
 """
 
 import logging
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -12,42 +12,105 @@ from scipy.stats.mstats import normaltest
 from scipy.stats import boxcox
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_selection import f_classif
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, OrdinalEncoder
 
 
-def remove_unnecessary_columns(
+def transform_target(df: pd.DataFrame):
+    target_variable = 'Attrition_Flag'
+    df[target_variable] = df[target_variable].apply(
+        lambda x: 0 if x == "Existing Customer" else 1
+    )
+    df.rename(columns={target_variable: "Attrition"}, inplace=True)
+    return df
+
+
+def handle_outliers(
     df: pd.DataFrame,
-    delete_columns: Dict
+    outliers_columns: List
 ) -> pd.DataFrame:
     """
-    Removes unnecessary columns from a DataFrame based on the
-    specified criteria.
+    Handles outliers in specified columns of a DataFrame based on statistical
+    tests and boundary criteria.
 
     Parameters:
     - df (pd.DataFrame): The input DataFrame.
-    - delete_columns (Dict): A dictionary containing information
-      about columns to delete.
-        - 'selected_columns' (List[str]): List of column names to be deleted.
-        - 'threshold' (float): Threshold for missing data. Columns with
-          missing data exceeding this threshold will be deleted.
+    - outliers_columns (List): A list containing information about
+      columns with outliers.
 
     Returns:
-    - pd.DataFrame: The DataFrame with unnecessary columns removed.
+    - pd.DataFrame: The DataFrame with outliers removed.
     """
-    df.drop(columns=delete_columns['selected_columns'], inplace=True)
+    print("Shape before removing: ", df.shape)
+    transformed_columns = []
 
-    missing_th = int((1 - delete_columns['threshold']) * len(df)) + 1
+    for col in outliers_columns:
+        p_value = normaltest(df[col].values)[1]
+        if p_value < 0.05:
+            uppper_boundary = df[col].mean() + 3 * df[col].std()
+            lower_boundary = df[col].mean() - 3 * df[col].std()
+        else:
+            IQR = df[col].quantile(0.75) - df[col].quantile(0.25)
+            lower_boundary = df[col].quantile(0.25) - (IQR * 1.5)
+            uppper_boundary = df[col].quantile(0.75) + (IQR * 1.5)
+        outliers = df[
+            (df[col] < lower_boundary) | (df[col] > uppper_boundary)
+        ].index.tolist()
 
-    missing_data_cols = [
-        col for col in df.columns.tolist() if df[col].count() < missing_th
-    ]
-    logger = logging.getLogger(__name__)
-    if len(missing_data_cols) > 0:
-        df.drop(columns=missing_data_cols, inplace=True)
-        logger.info("Incomplete deleted columns: ", missing_data_cols)
+        if len(outliers) > 0:
+            df.drop(outliers, axis=0, inplace=True)
+            transformed_columns.append((col, len(outliers)))
+
+    df.reset_index(inplace=True, drop=True)
+    if len(transformed_columns) > 0:
+        print("Outliers deleted: ", transformed_columns)
+        print("Shape after removing: ", df.shape)
     else:
-        logger.info("There are not deleted columns")
-
+        print("There are not outliers")
     return df
+
+
+def get_preprocessor(
+    df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Encodes categorical columns in a DataFrame using various encoding
+    techniques.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame.
+    - target_variable (str): The name of the target variable for binary
+      encoding.
+
+    Returns:
+    - pd.DataFrame: The DataFrame with encoded categorical columns.
+    """
+    target_variable = 'Attrition'
+    x = df.drop(columns=[target_variable])
+
+
+    education_order = ['Unknown', 'Uneducated', 'High School', 'College', 'Graduate', 'Post-Graduate', 'Doctorate']
+    income_order = ["Unknown", "Less than $40K", "$40K - $60K", "$60K - $80K", "$80K - $120K", "$120K +"]
+
+
+    # Create a ColumnTransformer
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('Custom_education', OrdinalEncoder(categories=[education_order]), ['Education_Level']),
+            ('Custom_income', OrdinalEncoder(categories=[income_order]), ['Income_Category']),
+            ('MinMax', MinMaxScaler(), ['Customer_Age', 'Months_on_book', 'Credit_Limit', 'Total_Revolving_Bal', 'Avg_Open_To_Buy', 'Total_Trans_Amt']),
+            ('Ordinal', OrdinalEncoder(), ['Marital_Status', 'Gender']),
+            ('onehot', OneHotEncoder(), ['Card_Category'])
+        ],
+        remainder='passthrough', # Leave the other columns unchanged
+
+    )
+
+    # Label encoder
+    preprocessor.fit(x) 
+
+    return preprocessor
 
 
 def remove_incomplete_rows(

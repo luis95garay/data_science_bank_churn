@@ -6,38 +6,61 @@
 BankChurners:
   type: pandas.CSVDataSet
   filepath: data/01_raw/BankChurners.csv
+  load_args:
+    usecols:
+      [
+        "Attrition_Flag",
+        "Customer_Age",
+        "Gender",
+        "Dependent_count",
+        "Education_Level",
+        "Marital_Status",
+        "Income_Category",
+        "Card_Category",
+        "Months_on_book",
+        "Total_Relationship_Count",
+        "Months_Inactive_12_mon",
+        "Contacts_Count_12_mon",
+        "Credit_Limit",
+        "Total_Revolving_Bal",
+        "Avg_Open_To_Buy",
+        "Total_Amt_Chng_Q4_Q1",
+        "Total_Trans_Amt",
+        "Total_Trans_Ct",
+        "Total_Ct_Chng_Q4_Q1",
+        "Avg_Utilization_Ratio",
+      ]
   layer: raw
 
-data_processing.BankChurners_removed_columns:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/BankChurners_removed_columns.csv
+data_processing.rename_bankchurners:
+  type: kedro.io.MemoryDataSet
+  # filepath: data/02_intermediate/BankChurners_removed_columns.csv
   layer: intermediate
 
-data_processing.BankChurners_reduced_columns:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/BankChurners_reduced_columns.csv
-  layer: intermediate
+# data_processing.BankChurners_reduced_columns:
+#   type: kedro.io.MemoryDataSet
+#   filepath: data/02_intermediate/BankChurners_reduced_columns.csv
+#   layer: intermediate
 
 data_processing.BankChurners_without_outliers:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/BankChurners_without_outliers.csv
+  type: kedro.io.MemoryDataSet
+  # filepath: data/02_intermediate/BankChurners_without_outliers.csv
   layer: intermediate
 
-data_processing.BankChurners_without_skew:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/BankChurners_without_skew.csv
+# data_processing.BankChurners_without_skew:
+#   type: pandas.CSVDataSet
+#   filepath: data/02_intermediate/BankChurners_without_skew.csv
+#   layer: intermediate
+
+# encoded_data:
+#   type: pandas.CSVDataSet
+#   filepath: data/02_intermediate/encoded_data.csv
+#   layer: intermediate
+
+preprocessor:
+  type: pickle.PickleDataSet
+  filepath: data/05_model_input/preprocessor.pkl
   layer: intermediate
-
-
-encoded_data:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/encoded_data.csv
-  layer: intermediate
-
-model_input:
-  type: pandas.CSVDataSet
-  filepath: data/05_model_input/model_input.csv
-  layer: model input
 
 data_science.active_modelling_pipeline.model_lg:
   type: pickle.PickleDataSet
@@ -53,7 +76,6 @@ data_science.candidate_modelling_pipeline_svm.model_rf:
   type: pickle.PickleDataSet
   filepath: data/06_models/model_rf.pickle
   layer: models
-
 
 classification_report_lr:
   type: matplotlib.MatplotlibWriter
