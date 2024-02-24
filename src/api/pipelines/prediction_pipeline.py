@@ -9,15 +9,17 @@ class PredictPipeline:
         self.result_dict = {0: "No Churn", 1: "Churn"}
     
     def predict(self, df_features):
-        file_path = Path.cwd()
-        model_path = file_path / "data" / "06_models" / "model_notebook.pkl"
-        print("Before Loading")
+        file_path = Path(__file__).parent.parent.parent.parent
+        model_path = file_path / "data" / "06_models" / "best_model.pkl"
         with open(model_path, 'rb') as file:
             loaded_model = pickle.load(file)
         
-        print("After Loading")
+        preprocessor_path = file_path / "data" / "05_model_input" / "preprocessor.pkl"
+        with open(preprocessor_path, 'rb') as file:
+            loaded_preprocessor = pickle.load(file)
         
-        result = loaded_model.predict(df_features)
+        transformed_features = loaded_preprocessor.transform(df_features)
+        result = loaded_model.predict(transformed_features)
         return self.result_dict[result[0]]
 
 

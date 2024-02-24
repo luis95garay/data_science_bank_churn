@@ -45,12 +45,8 @@ async def predict(request: Request, employeedata: EmployeeData):
         employeedata.avg_utilization_ratio
     )
     pred_df = data.get_data_as_data_frame()
-    print("Before Prediction")
-
     predict_pipeline = PredictPipeline()
-    print("Mid Prediction")
     results = predict_pipeline.predict(pred_df)
-    print("after Prediction")
 
     # return templates.TemplateResponse("index.html", {"request": request, "results": results['result']})
     return {'data': results}
