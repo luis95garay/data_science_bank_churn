@@ -7,18 +7,21 @@ This is a project of bank churn prediction developed in kedro framework. The pro
 
 ## Overview
 
-This is a Kedro project, which was generated using `Kedro 0.17.7`.
+This is a Kedro project, which was generated using `Kedro 0.19.2`.
 
 Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
 
 ## How to install dependencies
 
-Create an environment and make sure that it is with python 3.6
+Create an environment and make sure that it is with python 3.9
 
-To install them, run:
+How to install and run project with poetry:
 
 ```
-pip install -r src/requirements.txt
+pip install poetry
+poetry install --without dev
+poetry shell
+poetry run python -m uvicorn --port 8000 data_science_bank_churn.src.app:app
 ```
 
 ## How to run Kedro project
@@ -38,7 +41,7 @@ kedro run --pipeline=data_science
 If we want to visualize the final results run:
 
 ```
-kedro viz --autoreload
+kedro viz run --autoreload
 ```
 
 # Model Deployment
