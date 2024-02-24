@@ -1,0 +1,31 @@
+[build-system]
+requires = [ "setuptools",]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data_science_bank_churn"
+readme = "README.md"
+dynamic = [ "dependencies", "version",]
+
+[project.scripts]
+data-science-bank-churn = "data_science_bank_churn.__main__:main"
+
+[tool.kedro]
+package_name = "data_science_bank_churn"
+project_name = "data_science_bank_churn"
+kedro_init_version = "0.19.2"
+tools = [ "None",]
+example_pipeline = "True"
+source_dir = "src"
+
+[project.entry-points."kedro.hooks"]
+
+[tool.setuptools.dynamic.dependencies]
+file = "requirements.txt"
+
+[tool.setuptools.dynamic.version]
+attr = "data_science_bank_churn.__version__"
+
+[tool.setuptools.packages.find]
+where = [ "src",]
+namespaces = false

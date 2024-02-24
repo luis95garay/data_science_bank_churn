@@ -1,22 +1,26 @@
-[tool.kedro]
-package_name = "data_science_bank_churn"
-project_name = "data_science_bank_churn"
-project_version = "0.17.7"
+[tool.poetry]
+name = "data-science-bank-churn"
+version = "0.1.0"
+description = ""
+authors = ["Luis Fernando González Garay <luis95.garay@gmail.com>"]
+readme = "README.md"
 
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
-known_third_party = "kedro"
+[tool.poetry.dependencies]
+python = "^3.9"
+uvicorn = "0.25.0"
+fastapi = "^0.109.2"
+scikit-learn = "^1.4.1.post1"
+xgboost = "^2.0.3"
+pandas = "^2.2.1"
 
-[tool.pytest.ini_options]
-addopts = """
---cov-report term-missing \
---cov src/data_science_bank_churn -ra"""
 
-[tool.coverage.report]
-fail_under = 0
-show_missing = true
-exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+[tool.poetry.group.dev.dependencies]
+kedro = {extras = ["csv"], version = "^0.19.2"}
+kedro-viz = "^7.1.0"
+kedro-datasets = "^2.0.0"
+scikit-learn = "^1.4.1.post1"
+xgboost = "^2.0.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
