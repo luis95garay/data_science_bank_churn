@@ -25,12 +25,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "rename_bankchurners",
                     'params:outliers_columns'
                 ],
-                outputs="BankChurners_without_outliers",
+                outputs="model_input",
                 name="handle_outliers",
             ),
             node(
                 func=get_preprocessor,
-                inputs=["BankChurners_without_outliers",],
+                inputs=["model_input"],
                 outputs="preprocessor",
                 name="feature_selection",
             ),
@@ -39,6 +39,6 @@ def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         pipe=pipeline_instance,
         inputs="BankChurners",
-        outputs="preprocessor",
+        outputs=["model_input", "preprocessor"],
         namespace="data_processing",
     )

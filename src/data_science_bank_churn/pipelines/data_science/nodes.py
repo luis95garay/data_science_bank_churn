@@ -2,129 +2,141 @@
 This is a boilerplate pipeline 'data_science'
 generated using Kedro 0.17.7
 """
-from typing import Dict, Tuple, Any
 
-import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
-from sklearn.pipeline import Pipeline
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import (
-    classification_report, accuracy_score, precision_score,
+    accuracy_score, precision_score,
     recall_score, make_scorer
 )
 from sklearn.metrics import f1_score
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
-def split_data(
-    df: pd.DataFrame,
-    target_variable: str,
-    model_options_lg: Dict
-) -> Tuple:
+def split_dataset(df, preprocessor):
+    target_variable = 'Attrition'
     y = df[target_variable]
     x = df.drop(columns=[target_variable])
 
     strat_shuf_split = StratifiedShuffleSplit(
-        n_splits=1, test_size=model_options_lg['test_size'],
-        random_state=model_options_lg['random_state']
+        n_splits=1, test_size=0.2,
+        random_state=42
     )
 
     train_idx, test_idx = next(strat_shuf_split.split(x, y))
-    x_train = df.loc[train_idx, x.columns]
-    y_train = df.loc[train_idx, target_variable]
-    x_test = df.loc[test_idx, x.columns]
-    y_test = df.loc[test_idx, target_variable]
+    x_train = x.iloc[train_idx, :]
+    y_train = y[train_idx]
+    x_test = x.loc[test_idx, :]
+    y_test = y[test_idx]
+
+    x_train = preprocessor.fit_transform(x_train)
+    x_test = preprocessor.transform(x_test)
 
     return x_train, y_train, x_test, y_test
 
 
-def train_model(
-    x_train: pd.DataFrame,
-    y_train: pd.Series,
-    model_options_lg: Dict
-) -> Any:
-    skf = StratifiedKFold(shuffle=True,
-                          random_state=model_options_lg['random_state'],
-                          n_splits=model_options_lg['n_splits'])
-
-    ss = StandardScaler()
-
+def evaluate_models(X_train, y_train, X_test, y_test, models, param):
+    report = {}
     scoring = {
         'accuracy': make_scorer(accuracy_score),
         'precision': make_scorer(precision_score, average='macro'),
         'recall': make_scorer(recall_score, average='macro'),
         'f1': make_scorer(f1_score, average='macro')
     }
+    skf = StratifiedKFold(shuffle=True, random_state=42, n_splits=3)
 
-    if model_options_lg['model'] == "LogisticRegression":
-        lreg = LogisticRegression()
+    for i in range(len(list(models))):
+        model = list(models.values())[i]
+        para=param[list(models.keys())[i]]
 
-        estimator = Pipeline([
-            # ("polynomial_features", PolynomialFeatures()),
-            ("scaler", ss),
-            ("logistic_regression", lreg)])
+        gs = GridSearchCV(model, para, cv=skf, scoring=scoring, refit='f1')
+        gs.fit(X_train,y_train)
 
-        params = {
-            # 'polynomial_features__degree': [1, 2, 3],
-            'logistic_regression__penalty': ['l1', 'l2'],
-            'logistic_regression__C': [4, 6, 10],
-            'logistic_regression__solver': ['liblinear']
+        model.set_params(**gs.best_params_)
+        model.fit(X_train,y_train)
+
+        # y_train_pred = model.predict(X_train)
+
+        y_test_pred = model.predict(X_test)
+
+
+        report[list(models.keys())[i]] = {
+            'accuracy': accuracy_score(y_test, y_test_pred),
+            'precision': precision_score(y_test, y_test_pred),
+            'recall': recall_score(y_test, y_test_pred),
+            'f1': f1_score(y_test, y_test_pred)
         }
 
-    elif model_options_lg['model'] == "SVC":
-        svc = SVC()
+    return report
 
-        estimator = Pipeline([
-            # ("polynomial_features", PolynomialFeatures()),
-            ("scaler", ss),
-            ("svc_classifier", svc)])
 
-        params = {
-            # 'polynomial_features__degree': [1, 2,3],
-            'svc_classifier__C': [2, 4, 6],
-            'svc_classifier__kernel': ['rbf', 'sigmoid']
+def train_model(x_train, y_train, x_test, y_test):
+    
+    models = {
+        "Logistic Regression": LogisticRegression(),
+        "KNeighbors Classifier": KNeighborsClassifier(),
+        "Support Vector Machine": SVC(),
+        "Random Forest": RandomForestClassifier(),
+        "GradientBoosting Classifier": GradientBoostingClassifier(),
+        "AdaBoost Classifier": AdaBoostClassifier(),
+        "XGB Classifier": XGBClassifier()
+    }
+    params={
+        "Logistic Regression": {
+            'penalty':['l2', 'l1'],
+            'solver':['liblinear']
+        },
+        "KNeighbors Classifier":{
+            'n_neighbors':[5, 7],
+            'weights': ['uniform', 'distance']
+        },
+        "Support Vector Machine":{
+            'kernel':['linear', 'rbf'],
+            'gamma': ['scale', 'auto']
+        },
+        "Random Forest":{
+            'n_estimators': [100, 200]
+        },
+        "GradientBoosting Classifier":{
+            'n_estimators': [100, 200]
+        },
+        "AdaBoost Classifier":{
+            'n_estimators': [100, 200]
+        },
+        "XGB Classifier":{
+            'n_estimators': [100, 200]
         }
-    elif model_options_lg['model'] == "RandomForest":
-        rf = RandomForestClassifier()
+        
+    }
 
-        estimator = Pipeline([
-            # ("polynomial_features", PolynomialFeatures()),
-            ("scaler", ss),
-            ("RF_classifier", rf)])
+    model_report = evaluate_models(X_train=x_train, y_train=y_train, X_test=x_test, y_test=y_test,
+                                        models=models, param=params)
+    
+    # ## To get best model score from dict
+    best_model_name, _ = sorted([(model, score) for model, scores in model_report.items() for metric, score in scores.items() if metric == 'f1'], reverse=True, key= lambda x: x[1])[0]
 
-        params = {
-            # 'polynomial_features__degree': [1, 2,3],
-            'RF_classifier__n_estimators': [350, 400, 450],
-            'RF_classifier__max_depth': [None, 20],
-            'RF_classifier__warm_start': [True]
-        }
-
-    grid = GridSearchCV(
-        estimator, params, scoring=scoring, refit='f1', cv=skf, n_jobs=-1
-    )
-    grid.fit(x_train, y_train)
-
-    return grid
+    best_model = models[best_model_name]
+    # return model_report, best_model_name, best_model
+    return best_model
 
 
-def evaluate_model(
-    model: Any,
-    x_test: pd.DataFrame,
-    y_test: pd.Series
-):
-    score, params = model.best_score_, model.best_params_
-    print("Best score: ", score)
-    print("Best params: ", params)
-    predictions = model.predict(x_test)
-    print(classification_report(y_test, predictions))
-    print(model.cv_results_['mean_test_f1'])
-    cr = classification_report(y_test, predictions, output_dict=True)
-    df_cr = pd.DataFrame(cr).iloc[:-1, :].T
-    sns.heatmap(df_cr, annot=True)
+# def evaluate_model(
+#     model: Any,
+#     x_test: pd.DataFrame,
+#     y_test: pd.Series
+# ):
+#     score, params = model.best_score_, model.best_params_
+#     print("Best score: ", score)
+#     print("Best params: ", params)
+#     predictions = model.predict(x_test)
+#     print(classification_report(y_test, predictions))
+#     print(model.cv_results_['mean_test_f1'])
+#     cr = classification_report(y_test, predictions, output_dict=True)
+#     df_cr = pd.DataFrame(cr).iloc[:-1, :].T
+#     sns.heatmap(df_cr, annot=True)
 
-    return plt
+#     return plt
