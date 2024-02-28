@@ -1,0 +1,39 @@
+version: "3"
+services:
+  ml_bankchurn:
+    image: bank_churn:latest
+    build:
+      context: ml_bankchurn
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - bank_churn
+  frontend:
+    image: frontend:latest
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+    networks:
+      - bank_churn
+  mlflow:
+    image: ubuntu/mlflow:2.1.1_1.0-22.04
+    container_name: tracker_mlflow
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - bank_churn
+    entrypoint: mlflow server -h 0.0.0.0 --port 5000
+    depends_on:
+      - ml_bankchurn
+      - frontend
+    # Example: https://github.com/Toumash/mlflow-docker/blob/master/docker-compose.yml
+
+networks:
+  bank_churn:
+    driver: bridge
