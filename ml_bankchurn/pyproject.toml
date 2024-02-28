@@ -6,7 +6,7 @@ authors = ["Luis Fernando González Garay <luis95.garay@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
 uvicorn = "0.25.0"
 fastapi = "^0.109.2"
 scikit-learn = "^1.4.1.post1"
@@ -20,6 +20,8 @@ kedro-viz = "^7.1.0"
 kedro-datasets = "^2.0.0"
 scikit-learn = "^1.4.1.post1"
 xgboost = "^2.0.3"
+setuptools = "^69.1.1"
+
 
 [build-system]
 requires = ["poetry-core"]

@@ -15,6 +15,8 @@ from sklearn.metrics import (
     recall_score, make_scorer
 )
 from sklearn.metrics import f1_score
+import mlflow
+from mlflow import MlflowClient
 
 
 def split_dataset(df, preprocessor):
@@ -39,7 +41,15 @@ def split_dataset(df, preprocessor):
     return x_train, y_train, x_test, y_test
 
 
-def evaluate_models(X_train, y_train, X_test, y_test, models, param):
+def fetch_logged_data(run_id):
+    client = MlflowClient()
+    data = client.get_run(run_id).data
+    tags = {k: v for k, v in data.tags.items() if not k.startswith("mlflow.")}
+    artifacts = [f.path for f in client.list_artifacts(run_id, "model")]
+    return data.params, data.metrics, tags, artifacts
+
+
+def _evaluate_models(X_train, y_train, X_test, y_test, models, param):
     report = {}
     scoring = {
         'accuracy': make_scorer(accuracy_score),
@@ -50,32 +60,38 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, param):
     skf = StratifiedKFold(shuffle=True, random_state=42, n_splits=3)
 
     for i in range(len(list(models))):
-        model = list(models.values())[i]
-        para=param[list(models.keys())[i]]
+        with mlflow.start_run() as run:
+            model = list(models.values())[i]
+            para=param[list(models.keys())[i]]
 
-        gs = GridSearchCV(model, para, cv=skf, scoring=scoring, refit='f1')
-        gs.fit(X_train,y_train)
+            gs = GridSearchCV(model, para, cv=skf, scoring=scoring, refit='f1')
+            gs.fit(X_train,y_train)
 
-        model.set_params(**gs.best_params_)
-        model.fit(X_train,y_train)
+            model.set_params(**gs.best_params_)
+            model.fit(X_train,y_train)
 
-        # y_train_pred = model.predict(X_train)
+            # y_train_pred = model.predict(X_train)
 
-        y_test_pred = model.predict(X_test)
+            y_test_pred = model.predict(X_test)
 
 
-        report[list(models.keys())[i]] = {
-            'accuracy': accuracy_score(y_test, y_test_pred),
-            'precision': precision_score(y_test, y_test_pred),
-            'recall': recall_score(y_test, y_test_pred),
-            'f1': f1_score(y_test, y_test_pred)
-        }
+            report[list(models.keys())[i]] = {
+                'accuracy': accuracy_score(y_test, y_test_pred),
+                'precision': precision_score(y_test, y_test_pred),
+                'recall': recall_score(y_test, y_test_pred),
+                'f1': f1_score(y_test, y_test_pred)
+            }
 
+        # fetch logged data
+        # params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
     return report
 
 
 def train_model(x_train, y_train, x_test, y_test):
-    
+    mlflow.set_tracking_uri(uri="http://mlflow:5000")
+    mlflow.set_experiment("Bank Churn")
+    mlflow.sklearn.autolog()
+
     models = {
         "Logistic Regression": LogisticRegression(),
         "KNeighbors Classifier": KNeighborsClassifier(),
@@ -113,7 +129,7 @@ def train_model(x_train, y_train, x_test, y_test):
         
     }
 
-    model_report = evaluate_models(X_train=x_train, y_train=y_train, X_test=x_test, y_test=y_test,
+    model_report = _evaluate_models(X_train=x_train, y_train=y_train, X_test=x_test, y_test=y_test,
                                         models=models, param=params)
     
     # ## To get best model score from dict

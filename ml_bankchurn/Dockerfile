@@ -17,13 +17,13 @@ COPY pyproject.toml poetry.lock ./
 RUN touch README.md
 
 # Install any dependencies specified in the requirements file
-RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+RUN poetry install --only dev --no-root && rm -rf $POETRY_CACHE_DIR
 
 # Copy rest of the project
 COPY data_science_bank_churn ./data_science_bank_churn
 
 # Install any dependencies specified in the requirements file
-RUN poetry install --without dev
+RUN poetry install --only dev
 
 # Expose the ports for each API (adjust the port numbers as needed)
 EXPOSE 8000
