@@ -53,15 +53,22 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          ECR_REPOSITORY_1: ${{ secrets.ECR_REPOSITORY_NAME_1 }}
+          ECR_REPOSITORY_2: ${{ secrets.ECR_REPOSITORY_NAME_2 }}
           IMAGE_TAG: latest
         run: |
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_1:$IMAGE_TAG ml_bankchurn
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_1:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY_1:$IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_2:$IMAGE_TAG frontend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_2:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY_2:$IMAGE_TAG"
+          docker pull ubuntu/mlflow:2.1.1_1.0-22.04
+          docker image tag ubuntu/mlflow:2.1.1_1.0-22.04 $ECR_REGISTRY/mlflow:$IMAGE_TAG
+          docker push $ECR_REGISTRY/mlflow:$IMAGE_TAG
 
   Continuous-Deployment:
     needs: build-and-push-ecr-image
@@ -81,17 +88,31 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Pull latest images
+      - name: Docker compose
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY_1: ${{ secrets.ECR_REPOSITORY_NAME_1 }}
+          ECR_REPOSITORY_2: ${{ secrets.ECR_REPOSITORY_NAME_2 }}
+          IMAGE_TAG: latest
         run: |
-          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          docker compose stop
+          docker compose up -d --build
+
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
+
+      # - name: Pull latest images
+      #   run: |
+      #     docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME_1 }}:latest
 
       # - name: Stop and remove  container if running
       #   run: |
       #     docker ps -q --filter "name=mltest" | grep -q . && docker stop mltest && docker rm -fv mltest
 
-      - name: Run Docker Image to serve users
-        run: |
-          docker run -d -p 8000:8000 --ipc="host" --name=mltest -e 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' -e 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+      # - name: Run Docker Image to serve users
+      #   run: |
+      #     docker run -d -p 8000:8000 --ipc="host" --name=mltest -e 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' -e 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
       - name: Clean previous images and containers
         run: |
           docker system prune -f
