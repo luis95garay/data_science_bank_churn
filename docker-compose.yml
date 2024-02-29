@@ -26,7 +26,7 @@ services:
     image: ${ECR_REGISTRY}/mlflow:${IMAGE_TAG}
     # image: ubuntu/mlflow:2.1.1_1.0-22.04
     # container_name: tracker_mlflow
-    # restart: always
+    restart: always
     ports:
       - "5000:5000"
     networks:

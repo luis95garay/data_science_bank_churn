@@ -1,17 +1,37 @@
-# Bank Churn
+# Bank Churn Prediction Using Classical Machine Learning Models
 
-This is a project of bank churn prediction developed in kedro framework. The project is devided in two pipelines
+### Project Description:
 
-1. data_processing: It performes steps like: remove unnecesary columns, handle outliers, treat skewed columns, one hot encoding and feature selection
-2. data_science: It performes steps like: split data, train and evaluate model
+This project aims to develop, train, and deploy a model that predicts bank customer churn. We will explore and compare the performance of various classical machine learning models like Logistic Regression, Random Forest, and XGBoost. MLflow will be used for model management, tracking, and deployment.
 
-## Overview
+### Project Structure:
+
+The project is divided into three microservices for better organization and scalability:
+
+1. ml_bankchurn: This service handles data preparation, model training, and evaluation.
+2. frontend: This service provides a user interface to interact with the model.
+3. mlflow: This service tracks model experiments, facilitates model versioning, and enables model deployment.
+
+### Examples
+
+Example of no churn
+![bank churn](frontend/public/bankchurn1.png)
+
+Example of churn
+![alt text](frontend/public/bankchurn2.png)
+
+## ml_bankchurn service
 
 This is a Kedro project, which was generated using `Kedro 0.19.2`.
 
 Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
 
-## How to install dependencies
+The project is devided in two pipelines
+
+1. data_processing: It performes steps like: remove unnecesary columns, handle outliers, treat skewed columns, one hot encoding and feature selection
+2. data_science: It performes steps like: split data, train and evaluate model
+
+### How to install dependencies
 
 Create an environment and make sure that it is with python 3.9
 
@@ -24,7 +44,7 @@ poetry shell
 poetry run python -m uvicorn --port 8000 data_science_bank_churn.src.app:app
 ```
 
-## How to run Kedro project
+### How to run Kedro project
 
 If we want to run all the processing and training steps, run:
 
