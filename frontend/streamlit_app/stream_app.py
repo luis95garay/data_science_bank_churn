@@ -5,7 +5,7 @@ import requests
 
 
 def predict_req(new_data: Dict):
-    url = "http://ml_bankchurn:8000/predict"
+    url = "http://localhost:8000/predict"
 
     payload = json.dumps(new_data)
     headers = {

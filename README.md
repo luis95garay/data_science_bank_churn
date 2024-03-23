@@ -1,4 +1,4 @@
-# Bank Churn Prediction Using Classical Machine Learning Models
+# Bank Churn Prediction Using Classical Machine Learning Models - AWS FARGATE
 
 ### Project Description:
 
@@ -64,7 +64,33 @@ If we want to visualize the final results run:
 kedro viz run --autoreload
 ```
 
-# Model Deployment
+# Model Deployment with AWS Fargate
+
+## 1. Validate docker images
+
+```
+docker build -t bankchurn .
+
+docker run -it -p 8000:8000 bankchurn
+```
+
+## 2. Create IAM user
+
+## 3. Create ECR repository for each container
+
+## 4. Creaet ECS cluster
+
+## 5. Manually set task definition
+
+## 6. Download task definition .json and save inside repository
+
+## 7. Run task definition inside cluster
+
+## 8. Configure credential in github actions
+
+## 8. Configure aws.yml file forn github actions
+
+# Model Deployment in EC2
 
 ## 1. Validate docker images
 
@@ -78,7 +104,7 @@ docker run -it -p 8000:8000 bankchurn
 
 ## 3. Create ECR repository
 
-## 4. Creaet EC2 instance
+## 4. Create EC2 instance
 
 Can be ubuntu
 
