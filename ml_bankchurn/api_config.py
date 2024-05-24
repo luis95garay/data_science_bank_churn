@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 # from api.exceptions import registry_exceptions
-from data_science_bank_churn.src.api.routes import route_registry as route_registry
+from api.routes import route_registry
 
 
 def get_api() -> FastAPI:

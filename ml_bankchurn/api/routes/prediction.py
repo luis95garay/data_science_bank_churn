@@ -1,8 +1,8 @@
 from fastapi import Request
 from fastapi.routing import APIRouter
 
-from data_science_bank_churn.src.api.pipelines.prediction_pipeline import PredictPipeline, CustomData
-from data_science_bank_churn.src.api.schemas import EmployeeData
+from api.pipelines.prediction_pipeline import PredictPipeline, CustomData
+from api.schemas import EmployeeData
 
 
 router = APIRouter(tags=['prediction'])
