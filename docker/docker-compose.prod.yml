@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  ml_bankchurn:
+    env_file:
+      - ../.prod.env
+    volumes:
+      - ../data:/home/workspace/data # API input / output are persisted on host storage
+  frontend:
+    env_file:
+      - ../.prod.env
+  mlflow:
+    env_file:
+      - ../.prod.env
+
+networks:
+  default:
+    name: $NETWORK_NAME
+    external: true
